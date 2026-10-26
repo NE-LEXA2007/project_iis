@@ -37,6 +37,8 @@ ingest.py — сбор исходных данных и наполнение в�
 """
 
 import hashlib
+import re
+import unicodedata
 from pathlib import Path
 
 import config
@@ -71,7 +73,44 @@ def clean_text(text: str) -> str:
     Подсказка: начните с re.sub(r"-\n", "", text) и r"\s+" -> " ", посмотрите
     на результат глазами и добавьте правила под свои исходные данные.
     """
-    raise NotImplementedError("П2: реализуйте очистку текста")
+    text = unicodedata.normalize("NFKC", text).replace("\r\n", "\n")
+    text = text.replace("\u00ad", "").replace("\xa0", " ")
+    text = re.sub(r"(?<=[А-Яа-яЁёA-Za-z])-\n(?=[а-яёa-z])", "", text)
+    lines = []
+    for line in text.splitlines():
+        line = re.sub(r"[ \t]+", " ", line).strip()
+        if re.fullmatch(r"(?:Page |Страница )?\d+(?: / \d+)?", line, re.I):
+            continue
+        if re.fullmatch(r"(?:BP p.l.c.[ |—-]*)?(?:Annual Report|Годовой отч[её]т) 2023", line, re.I):
+            continue
+        lines.append(line)
+    # Пустая строка сохраняет смысловую единицу. Табличная строка получает
+    # заголовок, период и единицы: без них отдельные цифры бесполезны.
+    blocks = re.split(r"\n\s*\n", "\n".join(lines).strip())
+    heading = ""
+    output = []
+    for block in blocks:
+        rows = block.strip().splitlines()
+        if not rows:
+            continue
+        first = rows[0]
+        if first.startswith("#") or re.match(r"^(?:Note|Примечание|Раздел)\s+\d+", first, re.I):
+            heading = first.lstrip("# ")
+            rows = rows[1:]
+        if not rows:
+            continue
+        if any("|" in row for row in rows):
+            header = next((row for row in rows if "|" in row), "")
+            for row in rows:
+                if re.fullmatch(r"[| :–-]+", row):
+                    continue
+                prefix = " / ".join(x for x in (heading, header if row != header else "") if x)
+                output.append((prefix + "\n" if prefix else "") + row)
+        else:
+            body = " ".join(rows)
+            output.append((heading + "\n" if heading else "") + body)
+    return "\n\n".join(output)
+
 
 
 def chunk_text(text: str, size: int = config.CHUNK_SIZE,
@@ -84,7 +123,39 @@ def chunk_text(text: str, size: int = config.CHUNK_SIZE,
     Следите за двумя вещами: шаг сдвига равен size - overlap (не size), и
     overlap обязан быть меньше size, иначе цикл не сойдётся.
     """
-    raise NotImplementedError("П2: реализуйте нарезку с перекрытием")
+    if size <= 0 or not 0 <= overlap < size:
+        raise ValueError("Требуется size > 0 и 0 <= overlap < size")
+    if not text.strip():
+        return []
+    chunks = []
+    current = ""
+    for unit in re.split(r"\n\s*\n", text.strip()):
+        if len(unit) > size:
+            if current:
+                chunks.append(current)
+                current = ""
+            # Для длинных единиц повторяем заголовок, а тело режем окнами.
+            head, sep, body = unit.partition("\n")
+            prefix = head + "\n" if sep and len(head) < size // 2 else ""
+            body = body if prefix else unit
+            width = size - len(prefix)
+            step = width - min(overlap, width - 1)
+            for pos in range(0, len(body), step):
+                chunks.append(prefix + body[pos:pos + width])
+                if pos + width >= len(body):
+                    break
+            continue
+        candidate = current + ("\n\n" if current else "") + unit
+        if len(candidate) <= size:
+            current = candidate
+        else:
+            chunks.append(current)
+            # Переносим целые предыдущие единицы, если они укладываются.
+            tail = current.split("\n\n")[-1]
+            current = tail + "\n\n" + unit if len(tail) <= overlap and len(tail) + 2 + len(unit) <= size else unit
+    if current:
+        chunks.append(current)
+    return list(dict.fromkeys(chunks))
 
 
 def detect_category(text: str, source: str) -> str:
@@ -97,7 +168,20 @@ def detect_category(text: str, source: str) -> str:
     Достаточно правил по имени файла и ключевым словам — LLM здесь не нужна.
     Пустых категорий быть не должно: заведите рубрику по умолчанию.
     """
-    raise NotImplementedError("П2: реализуйте рубрикацию")
+    rules = {
+        "events": r"events?|существенн|дивиденд|dividend|general meeting",
+        "risks": r"risks?|риск|uncertaint",
+        "segments": r"segments?|сегмент",
+        "financials": r"financials?|ifrs|мсфо|выручк|revenue|долг|debt|borrowings",
+    }
+    # Явная рубрика файла приоритетнее упоминания чужой темы в тексте.
+    for category, pattern in rules.items():
+        if re.search(pattern, source, re.I):
+            return category
+    for category, pattern in rules.items():
+        if re.search(pattern, text, re.I):
+            return category
+    return "general"
 
 
 # --- Сборка индекса: готова ---

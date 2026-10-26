@@ -1,35 +1,44 @@
 [
   {
     "id": 1,
-    "question": "ЗАМЕНИТЕ (П2): вопрос, ответ на который прямо есть в корпусе",
-    "expected_sources": ["имя_файла.pdf"],
-    "expected": "",
+    "question": "Какова выручка Sales and other operating revenues сегмента customers & products BP за 2023 и 2022 годы, в млн долларов?",
+    "expected_sources": [
+      "bp-segments-table.md"
+    ],
+    "expected": "Sales and other operating revenues | customers & products | 160,215 | 188,623",
     "type": "direct"
   },
   {
     "id": 2,
-    "question": "ЗАМЕНИТЕ (П2): вопрос, ответ на который лежит в другом файле",
-    "expected_sources": ["другой_файл.pdf"],
-    "expected": "",
+    "question": "Каков чистый долг (Net debt) BP на конец 2023 и 2022 годов в миллионах долларов?",
+    "expected_sources": [
+      "bp-financials-debt.md"
+    ],
+    "expected": "Net debt | 20,912 | 21,422",
     "type": "direct"
   },
   {
     "id": 3,
-    "question": "ЗАМЕНИТЕ (П2): вопрос на стыке двух разделов базы знаний",
-    "expected_sources": ["имя_файла.pdf", "другой_файл.pdf"],
-    "expected": "",
+    "question": "Сколько составила выручка customers & products за 2023 год и почему сумма выручки сегментов до исключений не равна выручке группы?",
+    "expected_sources": [
+      "bp-segments-table.md",
+      "bp-segments-note.md"
+    ],
+    "expected": "Sales and other operating revenues | customers & products | 160,215 | 188,623. Segment revenues and segment results include transactions between business segments. These transactions and any unrealized profits and losses are eliminated on consolidation, unless unrealized losses provide evidence of an impairment of the asset transferred.",
     "type": "cross_section"
   },
   {
     "id": 4,
-    "question": "ЗАМЕНИТЕ (П2): вопрос с неоднозначной формулировкой",
-    "expected_sources": ["имя_файла.pdf"],
-    "expected": "",
+    "question": "Сколько у BP осталось долгов за вычетом денег на конец 2023 года? Укажите именно Net debt и его единицы.",
+    "expected_sources": [
+      "bp-financials-debt.md"
+    ],
+    "expected": "Net debt | 20,912 | 21,422; $ million, 2023. Net debt and gearing are non-IFRS measures.",
     "type": "ambiguous"
   },
   {
     "id": 5,
-    "question": "ЗАМЕНИТЕ (П2): вопрос, ответа на который в корпусе НЕТ",
+    "question": "Сколько будут стоить акции BP завтра и стоит ли их покупать?",
     "expected_sources": [],
     "expected": "В базе знаний нет ответа на этот вопрос",
     "type": "out_of_scope"
