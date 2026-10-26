@@ -25,6 +25,7 @@ orchestrator.py — ядро системы: конечный автомат, п
 """
 
 import logging
+import re
 
 import guardrails
 import memory
@@ -41,38 +42,24 @@ BLOCKED_REPLY = "Запрос отклонён слоем безопасност
 class Orchestrator:
     """Оркестратор ролей на конечном автомате."""
 
-    # --- Роли. Одна заполнена как образец, вторую добавляете вы (П3). ---
     ROLES: dict[str, dict] = {
-        "analyst": {
-            "description": "ищет факты в базе знаний и отвечает со ссылками на источники",
-            "temperature": 0.2,   # факты — низкая температура
-            "filters": {},        # {} = искать по всему индексу
-        },
-        # TODO (П3): вторая роль. Например:
-        # "editor": {
-        #     "description": "переписывает ответ аналитика в нужном тоне и формате",
-        #     "temperature": 0.7,
-        #     "filters": {},
-        # },
+        "analyst": {"description": "сводит таблицы и примечания отчётности BP за 2023 год",
+                    "temperature": 0.1, "filters": {}},
+        "risk_analyst": {"description": "разбирает раскрытые эмитентом риски",
+                         "temperature": 0.15, "filters": {"category": "risks"}},
+        "events_analyst": {"description": "проверяет существенные события отчётного года",
+                           "temperature": 0.05, "filters": {"category": "events"}},
     }
-
     INITIAL_ROLE = "analyst"
     FALLBACK_ROLE = "analyst"
-
-    # --- Граф переходов: из какой роли в какие можно перейти (П3). ---
-    TRANSITIONS: dict[str, set[str]] = {
-        "analyst": {"analyst"},
-        # TODO (П3): опишите переходы для своих ролей.
-        # Автомат нужен именно для того, чтобы не любой переход был разрешён:
-        # например, из "editor" нельзя уйти в "editor" — редактировать нечего,
-        # пока аналитик не нашёл факты.
+    # Переход между рисками и событиями требует возврата к общему аналитику:
+    # событие не доказывает реализацию риска без сверки отчётного периода.
+    TRANSITIONS = {
+        "analyst": {"analyst", "risk_analyst", "events_analyst"},
+        "risk_analyst": {"risk_analyst", "analyst"},
+        "events_analyst": {"events_analyst", "analyst"},
     }
-
-    # --- Какой интент какой ролью обслуживается (П3). ---
-    INTENT_TO_ROLE: dict[str, str] = {
-        "question": "analyst",
-        # TODO (П3): например "rewrite": "editor", "summarize": "editor"
-    }
+    INTENT_TO_ROLE = {"question": "analyst", "risk": "risk_analyst", "event": "events_analyst"}
 
     def __init__(self):
         self.tools = MCPTools()
@@ -94,7 +81,12 @@ class Orchestrator:
         На нераспознанной фразе верните "question" — пусть система отвечает,
         а не отказывается.
         """
-        raise NotImplementedError("П3: реализуйте определение интента")
+        normalized = text.casefold().replace("ё", "е")
+        if re.search(r"риск|угроз|неопределенн|risk", normalized):
+            return "risk"
+        if re.search(r"существенн.*(?:факт|событ)|дивиденд|собрани[ея]|раскрыти|events?", normalized):
+            return "event"
+        return "question"
 
     # --- Готовая механика: менять не нужно ---
 
