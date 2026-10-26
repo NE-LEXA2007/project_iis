@@ -38,7 +38,7 @@ MEMORY_WINDOW = 10    # сколько последних сообщений у�
 LLM_BACKEND = os.getenv("LLM_BACKEND", "gigachat")
 GIGACHAT_CREDENTIALS = os.getenv("GIGACHAT_CREDENTIALS", "")
 GIGACHAT_MODEL = os.getenv("GIGACHAT_MODEL", "GigaChat")
-GIGACHAT_VERIFY_SSL = os.getenv("GIGACHAT_VERIFY_SSL", "false").lower() == "true"
+GIGACHAT_VERIFY_SSL = os.getenv("GIGACHAT_VERIFY_SSL", "true").lower() == "true"
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-r1:1.5b")
 

@@ -22,3 +22,9 @@ requests==2.32.3
 # Каналы доставки
 streamlit==1.38.0
 vkbottle==4.5.2
+
+# Совместимость ChromaDB 0.5 и MCP 1.2 с актуальными зависимостями
+numpy<2
+pydantic>=2.11.7,<2.12
+kubernetes<34
+transformers>=4.41,<4.46
