@@ -26,7 +26,13 @@ llm_client.py — доступ к языковой модели за общим 
 работа, сданная на LLM_BACKEND=fake, не принимается.
 """
 
+import logging
+import re
+import requests
+
 import config
+
+log = logging.getLogger(__name__)
 from contracts import LLMClient
 
 
@@ -35,11 +41,11 @@ class GigaChatClient:
 
     def __init__(self):
         self.model = config.GIGACHAT_MODEL
-        # TODO (П4): создать клиент
-        # from gigachat import GigaChat
-        # self._client = GigaChat(credentials=config.GIGACHAT_CREDENTIALS,
-        #                         model=self.model,
-        #                         verify_ssl_certs=config.GIGACHAT_VERIFY_SSL)
+        from gigachat import GigaChat
+        self._client = GigaChat(credentials=config.GIGACHAT_CREDENTIALS,
+                                model=self.model,
+                                verify_ssl_certs=config.GIGACHAT_VERIFY_SSL,
+                                timeout=60)
 
     def generate(self, messages: list[dict], temperature: float = 0.3) -> str:
         """Отправить диалог в GigaChat и вернуть текст ответа.
@@ -48,7 +54,17 @@ class GigaChatClient:
         Ответ лежит в response.choices[0].message.content.
         Не забудьте обработать сетевую ошибку: занятие не должно падать трассировкой.
         """
-        raise NotImplementedError("П4: реализуйте вызов GigaChat")
+        if not config.GIGACHAT_CREDENTIALS:
+            return "GigaChat не настроен: задайте GIGACHAT_CREDENTIALS в локальном .env."
+        try:
+            response = self._client.chat({"messages": messages,
+                                          "temperature": max(0.01, temperature)})
+            return response.choices[0].message.content
+        except Exception as exc:
+            # Не выводим payload, URL с параметрами или текст SDK-ошибки:
+            # они могут содержать пользовательские данные или авторизацию.
+            log.warning("Ошибка GigaChat: %s", type(exc).__name__)
+            return "GigaChat временно недоступен. Проверьте подключение и настройки доступа."
 
     def count_tokens(self, text: str) -> int:
         """Оценка длины в токенах.
@@ -57,7 +73,12 @@ class GigaChatClient:
         для русского текста примерно один токен на 3 символа. Точность здесь
         не главное — важно видеть порядок величины и связать его со стоимостью.
         """
-        raise NotImplementedError("П4: реализуйте подсчёт токенов")
+        if config.GIGACHAT_CREDENTIALS:
+            try:
+                return int(self._client.tokens_count([text], model=self.model)[0].tokens)
+            except Exception as exc:
+                log.warning("Оценка токенов GigaChat: %s", type(exc).__name__)
+        return max(1, (len(text) + 2) // 3)
 
 
 class OllamaClient:
@@ -74,11 +95,26 @@ class OllamaClient:
         У reasoning-моделей ответ приходит с блоком <think>...</think> — решите,
         показывать его пользователю или вырезать, и обоснуйте выбор на защите.
         """
-        raise NotImplementedError("П4: реализуйте вызов Ollama")
+        try:
+            response = requests.post(self.host.rstrip("/") + "/api/chat",
+                                     json={"model": self.model, "messages": messages,
+                                           "stream": False,
+                                           "options": {"temperature": temperature}},
+                                     timeout=(10, 180))
+            response.raise_for_status()
+            content = response.json()["message"]["content"]
+            # Внутреннее рассуждение не является проверенным ответом.
+            content = re.sub(r"<think>.*?</think>", "", content, flags=re.S)
+            if "<think>" in content:
+                return "Модель не завершила ответ. Повторите запрос."
+            return content.strip() or "Модель вернула пустой ответ. Повторите запрос."
+        except (requests.RequestException, ValueError, KeyError, TypeError) as exc:
+            log.warning("Ошибка Ollama: %s", type(exc).__name__)
+            return "Ollama недоступна или вернула некорректный ответ. Проверьте сервер и модель."
 
     def count_tokens(self, text: str) -> int:
         """Оценка длины в токенах — та же логика, что и в GigaChatClient."""
-        raise NotImplementedError("П4: реализуйте подсчёт токенов")
+        return max(1, (len(text) + 2) // 3)
 
 
 def build_client() -> LLMClient:

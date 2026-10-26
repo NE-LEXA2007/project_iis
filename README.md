@@ -98,7 +98,7 @@ python -m unittest discover -s tests -v
 
 GigaChat: `LLM_BACKEND=gigachat` и собственные `GIGACHAT_CREDENTIALS` в локальном `.env`. TLS-проверка включена; не отключайте её при ошибках сертификата, установите доверенный CA. Значения ключей не коммитить.
 
-Ollama: установите Ollama по официальной инструкции, выполните `ollama pull deepseek-r1:1.5b` и `ollama serve`; задайте `LLM_BACKEND=ollama`. По умолчанию сервер ожидается на `http://localhost:11434`. Нужны дополнительные RAM/место и доступ к реестру моделей.
+Ollama в этой среде: `python scripts/prepare_ollama.py` устанавливает CPU Ollama 0.11.11 и Qwen2.5-1.5B-Instruct Q4_K_M с проверкой SHA-256. Запустите `OLLAMA_MODELS=/workspace/.cache/ollama/models /workspace/toolchains/ollama/bin/ollama serve`, затем `/workspace/toolchains/ollama/bin/ollama create iis-bp -f Modelfile`. В `.env` задайте `LLM_BACKEND=ollama`, `OLLAMA_MODEL=iis-bp`. Это небольшая учебная модель, её качество требует отдельной оценки. На своём компьютере можно использовать штатную Ollama и более сильную модель. По умолчанию сервер ожидается на `http://localhost:11434`. Нужны дополнительные RAM/место и доступ к реестру моделей.
 
 ```bash
 streamlit run app.py --server.headless true

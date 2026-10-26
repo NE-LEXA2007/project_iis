@@ -28,7 +28,7 @@ import streamlit as st
 import config
 from orchestrator import Orchestrator
 
-st.set_page_config(page_title="Справочный ассистент", page_icon="🔎")
+st.set_page_config(page_title="Эмитент • BP 2023", page_icon="🔎")
 
 
 @st.cache_resource
@@ -46,7 +46,7 @@ if "history" not in st.session_state:
 orchestrator = get_orchestrator()
 
 # TODO (П6): замените заголовок и подсказку на свои
-st.title("Справочный ассистент")
+st.title("Эмитент • BP 2023")
 st.caption("Отвечает по загруженной базе знаний и ссылается на источники.")
 
 # Готовая часть, не убирать: на офлайн-заглушке ответы выглядят осмысленно,
@@ -71,7 +71,7 @@ for role, content in st.session_state.history:
     with st.chat_message(role):
         st.markdown(content)
 
-if question := st.chat_input("Задайте вопрос по базе знаний"):
+if question := st.chat_input("Что раскрыто о выручке, долге или рисках за 2023 год?"):
     st.session_state.history.append(("user", question))
     with st.chat_message("user"):
         st.markdown(question)

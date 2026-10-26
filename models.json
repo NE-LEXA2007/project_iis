@@ -1,0 +1,28 @@
+{
+  "repo": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+  "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+  "file": {
+    "rfilename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "blobId": "eca68f83004d8b86fa1742ee507ddee8f4b2abce",
+    "size": 1117320736,
+    "lfs": {
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "size": 1117320736,
+      "pointerSize": 135
+    }
+  },
+  "ollama_version": "0.11.11",
+  "ollama_url": "https://github.com/ollama/ollama/releases/download/v0.11.11/ollama-linux-amd64.tgz",
+  "ollama_sha256": "1d2988c29346e6af0216c847db20f7df7794412ae56674eeec21e0917113843f",
+  "installed_files": {
+    "bin/ollama": "e014750cd656db3a77f3bf6b45903f646c76075e58b835cc9787fb5fc8a8a600",
+    "lib/ollama/libggml-cpu-icelake.so": "cae6eac642fe576626c97724705ee052f94429ab1b3b12e0c8a515e7d09d8b4f",
+    "lib/ollama/libggml-cpu-skylakex.so": "56c83004af1995d80034d953de6c7590e0c08fbd5aacbf43a608573fbb718589",
+    "lib/ollama/libggml-cpu-alderlake.so": "96476ba18bdfb82a0c2a37340b9cbfa5c6015639420f6316028ea9581336516d",
+    "lib/ollama/libggml-cpu-sandybridge.so": "102f32c2ae3fb1d837b162f7fd4c08a3bc9120d6ebaa2eeb3271206709937d47",
+    "lib/ollama/libggml-cpu-haswell.so": "9be53d067c9699780b9e54ab841da6f73f0ae62cca4ece09c1ba52e1c3a1e831",
+    "lib/ollama/libggml-cpu-x64.so": "e7c95e090706f872d92b40076d7682d9fe8b1a5aa08622544deb71125e33dac3",
+    "lib/ollama/libggml-cpu-sse42.so": "7488e79df89142d34b30921228e01796fd40d464c3507edea1904d3613d05305",
+    "lib/ollama/libggml-base.so": "0543e3093aec7c1714ce3450aeaeee7786abec4c3a3e3f45807a352e888b74c8"
+  }
+}
