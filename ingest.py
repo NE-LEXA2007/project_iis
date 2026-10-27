@@ -37,6 +37,7 @@ ingest.py — сбор исходных данных и наполнение в�
 """
 
 import hashlib
+import json
 import re
 import unicodedata
 from pathlib import Path
@@ -81,7 +82,7 @@ def clean_text(text: str) -> str:
         line = re.sub(r"[ \t]+", " ", line).strip()
         if re.fullmatch(r"(?:Page |Страница )?\d+(?: / \d+)?", line, re.I):
             continue
-        if re.fullmatch(r"(?:BP p.l.c.[ |—-]*)?(?:Annual Report|Годовой отч[её]т) 2023", line, re.I):
+        if re.fullmatch(r"(?:ПАО «Магнит»[ |—-]*)?(?:Annual Report|Годовой отч[её]т) 2023", line, re.I):
             continue
         lines.append(line)
     # Пустая строка сохраняет смысловую единицу. Табличная строка получает
@@ -193,17 +194,27 @@ def ingest() -> int:
     Иначе после смены CHUNK_SIZE в коллекции остались бы чанки предыдущей
     нарезки, и hit-rate@5 замерялся бы по смеси двух — молча, без ошибки.
     """
-    collection = config.reset_collection()
-    total = 0
 
     # README.md отсеивается намеренно: это шаблонная заглушка каталога,
     # а не документ предметной области. Без отсева она попадает в индекс
     # и выдаётся поиском как знание.
-    files = [p for p in config.RAW_DIR.rglob("*")
-             if p.suffix.lower() in READERS and p.name != "README.md"]
+    manifest_path = Path(__file__).parent / "sources.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    files = []
+    for name in manifest["raw_files"]:
+        if Path(name).name != name:
+            raise ValueError("В raw_files разрешены только имена файлов")
+        path = config.RAW_DIR / name
+        if not path.is_file():
+            raise FileNotFoundError(f"Восстановите корпус: python scripts/prepare_corpus.py; нет {name}")
+        if path.suffix.lower() not in READERS:
+            raise ValueError(f"Неподдерживаемый формат: {name}")
+        files.append(path)
     if not files:
         raise SystemExit(f"В {config.RAW_DIR} нет файлов .txt/.md/.pdf — положите исходные данные (П2).")
 
+    collection = config.reset_collection()
+    total = 0
     for path in files:
         for page, raw in READERS[path.suffix.lower()](path):
             cleaned = clean_text(raw)

@@ -43,7 +43,7 @@ class Orchestrator:
     """Оркестратор ролей на конечном автомате."""
 
     ROLES: dict[str, dict] = {
-        "analyst": {"description": "сводит таблицы и примечания отчётности BP за 2023 год",
+        "analyst": {"description": "сводит таблицы и примечания отчётности «Магнита» за 2023 год",
                     "temperature": 0.1, "filters": {}},
         "risk_analyst": {"description": "разбирает раскрытые эмитентом риски",
                          "temperature": 0.15, "filters": {"category": "risks"}},
@@ -84,7 +84,7 @@ class Orchestrator:
         normalized = text.casefold().replace("ё", "е")
         if re.search(r"риск|угроз|неопределенн|risk", normalized):
             return "risk"
-        if re.search(r"существенн.*(?:факт|событ)|дивиденд|собрани[ея]|раскрыти|events?", normalized):
+        if re.search(r"существенн.*(?:факт|событ)|дивиденд|собрани[ея]|раскрыти|событи|events?", normalized):
             return "event"
         return "question"
 

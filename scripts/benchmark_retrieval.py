@@ -25,7 +25,7 @@ def main():
             rate1 = ingest.evaluate_retrieval(1)
             filtered = {}
             for category in ['financials', 'segments', 'risks', 'events']:
-                response = collection.query(query_texts=['BP 2023'], n_results=5, where={'category': category})
+                response = collection.query(query_texts=['Магнит 2023'], n_results=5, where={'category': category})
                 metas = response['metadatas'][0]
                 assert metas and all(m['category'] == category for m in metas), category
                 filtered[category] = len(metas)

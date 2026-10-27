@@ -17,3 +17,6 @@ venv/
 
 # Кэш исходного PDF
 data/downloads/
+
+# Отдельный индекс русской версии
+data/magnit_chroma/

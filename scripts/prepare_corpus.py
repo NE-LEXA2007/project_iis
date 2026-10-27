@@ -1,4 +1,4 @@
-"""Восстановить учебную выборку, проверяя TLS и SHA-256 исходного PDF."""
+"""Восстановить только выбранный русский корпус; TLS и SHA-256 обязательны."""
 import hashlib
 import json
 import shutil
@@ -9,34 +9,53 @@ from pypdf import PdfReader, PdfWriter
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def main():
-    manifest = json.loads((ROOT / 'sources.json').read_text())
-    cache = ROOT / 'data' / 'downloads'
+def sha256(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def prepare(root=ROOT):
+    manifest = json.loads((root / 'sources.json').read_text(encoding='utf-8'))
+    if manifest.get('schema_version') != 2:
+        raise ValueError('Нужен sources.json версии 2')
+    cache = root / 'data' / 'downloads'
     cache.mkdir(parents=True, exist_ok=True)
-    original = cache / 'bp-annual-2023.pdf'
-    if not original.exists():
-        request = urllib.request.Request(manifest['url'], headers={'User-Agent': 'IIS-course-project/1.0'})
-        with urllib.request.urlopen(request, timeout=90) as response:
-            content = response.read()
-        if hashlib.sha256(content).hexdigest() != manifest['sha256']:
-            raise SystemExit('SHA-256 не совпадает: исходник не сохранён, требуется проверка версии источника')
-        original.write_bytes(content)
-    if hashlib.sha256(original.read_bytes()).hexdigest() != manifest['sha256']:
-        raise SystemExit('SHA-256 сохранённого PDF не совпадает')
-    reader = PdfReader(original)
-    raw = ROOT / 'data' / 'raw'
+    raw = root / 'data' / 'raw'
     raw.mkdir(parents=True, exist_ok=True)
-    for name, pages in manifest['extracts'].items():
-        writer = PdfWriter()
-        for page in pages:
-            writer.add_page(reader.pages[page - 1])
-        with (raw / name).open('wb') as stream:
-            writer.write(stream)
-        print(name, len(pages), 'страниц')
-    for path in (ROOT / 'corpus').glob('*.md'):
-        shutil.copyfile(path, raw / path.name)
-        print(path.name, 'транскрипция таблицы')
+    for document in manifest['documents']:
+        original = cache / document['filename']
+        if original.name != document['filename']:
+            raise ValueError('filename должен быть именем файла без каталогов')
+        if not original.exists():
+            request = urllib.request.Request(document['url'], headers={'User-Agent': 'IIS-course-project/1.0'})
+            with urllib.request.urlopen(request, timeout=90) as response:
+                content = response.read()
+            if hashlib.sha256(content).hexdigest() != document['sha256']:
+                raise ValueError('Изменилась версия источника: SHA-256 не совпадает')
+            original.write_bytes(content)
+        if sha256(original) != document['sha256']:
+            raise ValueError('SHA-256 сохранённого источника не совпадает')
+        if document.get('extracts'):
+            reader = PdfReader(original)
+            for name, pages in document['extracts'].items():
+                if Path(name).name != name:
+                    raise ValueError('Недопустимое имя выборки')
+                writer = PdfWriter()
+                for page in pages:
+                    writer.add_page(reader.pages[page - 1])
+                with (raw / name).open('wb') as stream:
+                    writer.write(stream)
+                print(name, len(pages), 'страниц')
+    for name in manifest['transcripts']:
+        if Path(name).name != name:
+            raise ValueError('Недопустимое имя транскрипции')
+        shutil.copyfile(root / 'corpus' / name, raw / name)
+        print(name, 'проверенная выдержка')
+    for name in manifest['raw_files']:
+        if not (raw / name).is_file():
+            raise FileNotFoundError(raw / name)
+    return manifest
 
 
 if __name__ == '__main__':
-    main()
+    prepare()

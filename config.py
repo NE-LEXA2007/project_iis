@@ -20,14 +20,14 @@ load_dotenv()
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 RAW_DIR = DATA_DIR / "raw"
-CHROMA_DIR = DATA_DIR / "chroma"
-DB_PATH = DATA_DIR / "memory.db"
+CHROMA_DIR = DATA_DIR / "magnit_chroma"
+DB_PATH = DATA_DIR / "magnit-memory.db"
 SECURITY_LOG = BASE_DIR / "security_logs.txt"
 
 # --- Параметры RAG (подбираются на П2) ---
-COLLECTION_NAME = "knowledge_base"
+COLLECTION_NAME = "magnit_2023"
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
-CHUNK_SIZE = 768      # символов в чанке
+CHUNK_SIZE = 512      # символов в чанке
 CHUNK_OVERLAP = 64    # перекрытие между соседними чанками
 TOP_K = 5             # сколько чанков возвращает поиск
 

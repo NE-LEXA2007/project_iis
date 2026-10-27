@@ -1,28 +1,0 @@
-[10/26/26 13:07:52] INFO     Processing request of type            server.py:432
-                             CallToolRequest                                    
-[10/26/26 13:07:58] INFO     Load pretrained          SentenceTransformer.py:197
-                             SentenceTransformer:                               
-                             intfloat/multilingual-e5                           
-                             -small                                             
-Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|██████████| 1/1 [00:00<00:00, 19.83it/s]
-INFO:orchestrator:Сессия smoke-readiness: роль analyst, чанков 5, промпт ~1500 токенов
-BACKEND ollama QUESTION Каков Net debt BP на конец 2023 года в миллионах долларов? ANSWER [bp-financials-debt.md] (близость 0.9187)
-BP / Note 27 Capital disclosures and net debt / на 31 декабря / $ million
-
-Net debt | 20,912 | 21,422
-[10/26/26 13:08:21] INFO     Processing request of type            server.py:432
-                             CallToolRequest                                    
-Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|██████████| 1/1 [00:00<00:00, 26.26it/s]
-INFO:orchestrator:Сессия smoke-readiness: роль analyst, чанков 5, промпт ~1622 токенов
-BACKEND ollama QUESTION А Net debt на конец 2022 года в тех же единицах? ANSWER [bp-financials-debt.md] (близость 0.9187)
-BP / Note 27 Capital disclosures and net debt / на 31 декабря / $ million
-
-Net debt | 46,944 | 51,954
-[10/26/26 13:08:41] INFO     Processing request of type            server.py:432
-                             CallToolRequest                                    
-Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|██████████| 1/1 [00:00<00:00, 16.86it/s]
-INFO:orchestrator:Сессия smoke-readiness: роль analyst, чанков 5, промпт ~1670 токенов
-BACKEND ollama QUESTION Сравни значения Net debt из двух предыдущих ответов: как изменилась сумма в миллионах долларов? ANSWER [bp-financials-debt.md] (близость 0.9187)
-BP / Note 27 Capital disclosures and net debt / на 31 декабря / $ million
-
-Net debt | 46,944 | 51,954

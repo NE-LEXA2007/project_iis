@@ -17,7 +17,7 @@ uv pip check --python .venv/bin/python
 from pathlib import Path
 from dotenv import dotenv_values, set_key
 p=Path('.env')
-if not p.exists():p.write_text(Path('.env.example').read_text().replace('LLM_BACKEND=gigachat','LLM_BACKEND=ollama').replace('OLLAMA_MODEL=deepseek-r1:1.5b','OLLAMA_MODEL=iis-bp'))
+if not p.exists():p.write_text(Path('.env.example').read_text().replace('LLM_BACKEND=gigachat','LLM_BACKEND=ollama').replace('OLLAMA_MODEL=deepseek-r1:1.5b','OLLAMA_MODEL=iis-magnit'))
 values=dotenv_values(p)
 for k,v in {'HF_HOME':'/workspace/.cache/huggingface','HF_HUB_OFFLINE':'1','OMP_NUM_THREADS':'2','TOKENIZERS_PARALLELISM':'false'}.items():
  if k not in values:set_key(str(p),k,v)

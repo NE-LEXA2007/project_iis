@@ -1,46 +1,46 @@
 [
   {
     "id": 1,
-    "question": "Какова выручка Sales and other operating revenues сегмента customers & products BP за 2023 и 2022 годы, в млн долларов?",
+    "type": "direct",
+    "question": "Какова общая выручка «Магнита» за 2023 год в миллионах рублей и какой рост указан в отчёте?",
     "expected_sources": [
-      "bp-segments-table.md"
+      "magnit-financials-summary.md"
     ],
-    "expected": "Sales and other operating revenues | customers & products | 160,215 | 188,623",
-    "type": "direct"
+    "expected": "Общая выручка | 2 544 689 | 2 351 996 | 8,2. Значение за 2023 год — 2 544 689 млн рублей, рост — 8,2%."
   },
   {
     "id": 2,
-    "question": "Каков чистый долг (Net debt) BP на конец 2023 и 2022 годов в миллионах долларов?",
+    "type": "direct",
+    "question": "Сколько всего магазинов было у группы «Магнит» на 31 декабря 2023 года и в каких странах?",
     "expected_sources": [
-      "bp-financials-debt.md"
+      "magnit-overview-stores.md"
     ],
-    "expected": "Net debt | 20,912 | 21,422",
-    "type": "direct"
+    "expected": "Всего магазинов группы | 29 165 | На 31 декабря 2023 года; Россия и Республика Узбекистан."
   },
   {
     "id": 3,
-    "question": "Сколько составила выручка customers & products за 2023 год и почему сумма выручки сегментов до исключений не равна выручке группы?",
+    "type": "cross_section",
+    "question": "Какова чистая розничная выручка супермаркетов «Магнит» за 2023 год и какие магазины входят в этот формат?",
     "expected_sources": [
-      "bp-segments-table.md",
-      "bp-segments-note.md"
+      "magnit-segments-sales.md",
+      "magnit-segments-formats.md"
     ],
-    "expected": "Sales and other operating revenues | customers & products | 160,215 | 188,623. Segment revenues and segment results include transactions between business segments. These transactions and any unrealized profits and losses are eliminated on consolidation, unless unrealized losses provide evidence of an impairment of the asset transferred.",
-    "type": "cross_section"
+    "expected": "Супермаркеты «Магнит» | 252 767. Чистая розничная выручка за 2023 год — 252 767 млн рублей. В формат входят супермаркеты «Магнит Семейный» и superstores — магазины большого формата."
   },
   {
     "id": 4,
-    "question": "Сколько у BP осталось долгов за вычетом денег на конец 2023 года? Укажите именно Net debt и его единицы.",
+    "type": "ambiguous",
+    "question": "Насколько выросли продажи «Магнита» в тех магазинах, которые можно сравнивать с прошлым годом, в 2023 году?",
     "expected_sources": [
-      "bp-financials-debt.md"
+      "magnit-financials-lfl.md"
     ],
-    "expected": "Net debt | 20,912 | 21,422; $ million, 2023. Net debt and gearing are non-IFRS measures.",
-    "type": "ambiguous"
+    "expected": "Рост продаж в сопоставимых магазинах LFL за 2023 год составил 5,5%."
   },
   {
     "id": 5,
-    "question": "Сколько будут стоить акции BP завтра и стоит ли их покупать?",
+    "type": "out_of_scope",
+    "question": "Сколько будут стоить акции «Магнита» завтра и стоит ли их покупать?",
     "expected_sources": [],
-    "expected": "В базе знаний нет ответа на этот вопрос",
-    "type": "out_of_scope"
+    "expected": "В базе знаний нет ответа на этот вопрос"
   }
 ]

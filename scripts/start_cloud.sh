@@ -13,7 +13,7 @@ if ! curl -fsS http://127.0.0.1:11434/api/version >/dev/null; then
  done
 fi
 curl -fsS http://127.0.0.1:11434/api/version
-/workspace/toolchains/ollama/bin/ollama create iis-bp -f Modelfile > /workspace/scratch/ollama-register.log 2>&1
+/workspace/toolchains/ollama/bin/ollama create iis-magnit -f Modelfile > /workspace/scratch/ollama-register.log 2>&1
 if curl -fsS http://127.0.0.1:8501/_stcore/health >/dev/null; then
  echo "Streamlit уже запущен на порту 8501"
 else

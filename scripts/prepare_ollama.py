@@ -54,7 +54,7 @@ def main():
     download('https://huggingface.co/' + META['repo'] + '/resolve/' + META['revision'] + '/' + filename,
              CACHE / filename, META['file']['lfs']['sha256'])
     print('Ollama CPU и GGUF: SHA-256 подтверждён')
-    print('Запустите ollama serve, затем ollama create iis-bp -f Modelfile')
+    print('Запустите ollama serve, затем ollama create iis-magnit -f Modelfile')
 
 
 if __name__ == '__main__':

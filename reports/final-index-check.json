@@ -1,0 +1,50 @@
+{
+  "chunks": 309,
+  "all_sources_are_magnit": true,
+  "filters": [
+    {
+      "category": "financials",
+      "count": 5,
+      "sources": [
+        "magnit-financials-lfl.md",
+        "magnit-financials-summary.md"
+      ]
+    },
+    {
+      "category": "segments",
+      "count": 5,
+      "sources": [
+        "magnit-segments-formats.md",
+        "magnit-segments-sales.md"
+      ]
+    },
+    {
+      "category": "risks",
+      "count": 6,
+      "sources": [
+        "magnit-risks-summary.md",
+        "magnit-risks.pdf"
+      ]
+    },
+    {
+      "category": "events",
+      "count": 6,
+      "sources": [
+        "magnit-events-summary.md",
+        "magnit-events.pdf"
+      ]
+    }
+  ],
+  "strict_first_five_hits": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "returned_counts_for_questions": [
+    5,
+    5,
+    5,
+    5
+  ]
+}

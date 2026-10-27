@@ -1,18 +1,20 @@
-# Практика 3 — проверка автомата
+# Практика 3 — роли и переходы «МагнитСправки»
+
+Роли: аналитик показателей (весь индекс, temperature=0.1), аналитик рисков (risks, 0.15), аналитик событий (events, 0.05). detect_intent использует ключевые слова, не обращается к модели. Неизвестная фраза уходит в question → analyst.
 
 | Фраза | Интент | Роль из начального состояния |
 | --- | --- | --- |
-| Какова выручка BP? | question | analyst |
-| Структура долга | question | analyst |
-| Выручка сегмента | question | analyst |
-| Ключевые риски | risk | risk_analyst |
-| Какие угрозы названы? | risk | risk_analyst |
-| Что с дивидендами? | event | events_analyst |
-| Существенные факты года | event | events_analyst |
-| Общее собрание | event | events_analyst |
-| Сравни цифры | question | analyst |
+| Какова выручка «Магнита»? | question | analyst |
+| Сколько магазинов у группы? | question | analyst |
+| Какие торговые форматы развиваются? | question | analyst |
+| Ключевые риски компании | risk | risk_analyst |
+| Есть ли угрозы спросу? | risk | risk_analyst |
+| Какие события произошли в 2023 году? | event | events_analyst |
+| Какие дивиденды объявлены? | event | events_analyst |
+| Общее собрание акционеров | event | events_analyst |
+| Что означает LFL? | question | analyst |
 | Привет | question | analyst |
 
-Запрещённый переход: risk_analyst → events_analyst откатывается в analyst. В журнале получено предупреждение «Переход risk_analyst -> events_analyst запрещён, откат в analyst». Риск сам по себе не доказывает свершившееся событие; нужна сверка финансовым аналитиком.
+Переход risk_analyst → events_analyst запрещён и откатывается в analyst. Это отражено в журнале. Доменное основание: названный риск нельзя считать произошедшим событием без сверки. Из analyst доступны обе специальные роли; между ними нужен возврат к общей проверке.
 
-Поиск каждой роли: analyst — весь индекс; risk_analyst — category=risks; events_analyst — category=events. Переходы определены графом, detect_intent не вызывает LLM.
+Граф и механика сохранения контекста между ролями сохранены. Вызовы поиска идут через MCP; contracts.py, mcp_client.py и mcp_server.py не изменены.

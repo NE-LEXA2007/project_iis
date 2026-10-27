@@ -52,7 +52,7 @@ class Routing(unittest.TestCase):
         cases = [('Какова выручка?', 'question'), ('Структура долга', 'question'),
                  ('Выручка сегмента', 'question'), ('Ключевые риски', 'risk'),
                  ('Какие угрозы названы?', 'risk'), ('Что с дивидендами?', 'event'),
-                 ('Существенные факты года', 'event'), ('Общее собрание', 'event'),
+                 ('Существенные факты года', 'event'), ('Общее собрание', 'event'), ('Какие события произошли за год?', 'event'),
                  ('Сравни цифры', 'question'), ('Привет', 'question')]
         for text, expected in cases:
             with self.subTest(text=text):
@@ -126,6 +126,34 @@ class PromptsAndClients(unittest.TestCase):
             self.assertEqual(sdk.return_value.chat.call_args.args[0]['temperature'], 0.01)
             self.assertEqual(client.count_tokens('текст'), 12)
         self.assertTrue(sdk.call_args.kwargs['verify_ssl_certs'])
+
+
+class RussianCorpus(unittest.TestCase):
+    def test_number_check_does_not_concatenate_different_values(self):
+        from scripts.smoke_backend import check_answer
+        self.assertTrue(check_answer('Выручка 2 544 689 млн рублей', '2544689'))
+        self.assertTrue(check_answer('Выручка 2,544,689 млн рублей', '2544689'))
+        self.assertFalse(check_answer('2 магазина, 544 сотрудника, 689 дней', '2544689'))
+        self.assertFalse(check_answer('2023 и 2022 годы', '20232022'))
+        self.assertTrue(check_answer('Россия и Республика Узбекистан', 'countries'))
+        self.assertFalse(check_answer('Только Россия', 'countries'))
+
+    def test_active_corpus_has_no_bp_files_and_has_local_sources(self):
+        import json
+        from ingest import read_txt
+        root = Path(__file__).resolve().parents[1]
+        manifest = json.loads((root / 'sources.json').read_text())
+        self.assertEqual(manifest['company'], 'ПАО «Магнит»')
+        self.assertTrue(all(name.startswith('magnit-') for name in manifest['raw_files']))
+        for name in manifest['transcripts']:
+            text = (root / 'corpus' / name).read_text()
+            self.assertIn('Учебный перевод', text)
+            self.assertIn('Источник:', text)
+        cases = json.loads((root / 'gold_dataset.json').read_text())
+        self.assertEqual(len(cases), 5)
+        for case in cases:
+            self.assertTrue(set(case['expected_sources']) <= set(manifest['raw_files']))
+        self.assertEqual(len(cases[2]['expected_sources']), 2)
 
 
 if __name__ == '__main__':

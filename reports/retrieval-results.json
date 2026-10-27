@@ -2,28 +2,27 @@
   {
     "size": 512,
     "overlap": 64,
-    "chunks": 344,
+    "chunks": 309,
     "hit5": 1.0,
-    "hit1": 1.0,
+    "hit1": 0.75,
     "filters": {
       "financials": 5,
       "segments": 5,
-      "risks": 5,
-      "events": 5
+      "risks": 6,
+      "events": 6
     },
     "cross_all_sources_at5": true,
     "cross_found": [
-      "bp-financials-debt.md",
-      "bp-segments-note.md",
-      "bp-segments-table.md"
+      "magnit-segments-formats.md",
+      "magnit-segments-sales.md"
     ]
   },
   {
     "size": 768,
     "overlap": 64,
-    "chunks": 242,
-    "hit5": 1.0,
-    "hit1": 1.0,
+    "chunks": 199,
+    "hit5": 0.75,
+    "hit1": 0.75,
     "filters": {
       "financials": 5,
       "segments": 5,
@@ -32,30 +31,28 @@
     },
     "cross_all_sources_at5": true,
     "cross_found": [
-      "bp-annual-review.pdf",
-      "bp-financials-debt.md",
-      "bp-segments-note.md",
-      "bp-segments-table.md"
+      "magnit-financials-summary.md",
+      "magnit-segments-formats.md",
+      "magnit-segments-sales.md"
     ]
   },
   {
     "size": 768,
     "overlap": 128,
-    "chunks": 247,
-    "hit5": 1.0,
-    "hit1": 1.0,
+    "chunks": 207,
+    "hit5": 0.75,
+    "hit1": 0.75,
     "filters": {
-      "financials": 5,
+      "financials": 6,
       "segments": 5,
-      "risks": 5,
-      "events": 5
+      "risks": 6,
+      "events": 6
     },
     "cross_all_sources_at5": true,
     "cross_found": [
-      "bp-annual-review.pdf",
-      "bp-financials-debt.md",
-      "bp-segments-note.md",
-      "bp-segments-table.md"
+      "magnit-financials-summary.md",
+      "magnit-segments-formats.md",
+      "magnit-segments-sales.md"
     ]
   }
 ]

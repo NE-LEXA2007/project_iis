@@ -1,53 +1,70 @@
-"""Сквозной вызов MCP → ChromaDB → LLM; явно указывает выбранный бэкенд."""
-import logging
+"""Три реплики через MCP, поиск, настоящую модель и память. Это не LLM-судья П6."""
 import json
+import logging
 import re
 import sys
+import unicodedata
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 import config
 import memory
 from orchestrator import Orchestrator
 
-logging.basicConfig(level=logging.INFO)
-o = Orchestrator()
-sid = 'smoke-readiness'
-records = []
-original_generate = o.llm.generate
 
-def traced_generate(messages, temperature=0.3):
-    # Контекст для проверки памяти; финансовые вопросы тестовые, секретов нет.
-    records.append({'messages': messages})
-    answer = original_generate(messages, temperature)
-    records[-1]['answer'] = answer
-    return answer
+def check_answer(answer, expected):
+    """Ищем целое число, не склеивая цифры разных строк и годов."""
+    numbers = re.findall(r'(?<!\w)\d+(?:[ ,\u00a0\u202f]\d{3})*(?!\w)', unicodedata.normalize('NFKC', answer))
+    numbers = {re.sub(r'[\s,]', '', value) for value in numbers}
+    if expected == 'countries':
+        text = answer.casefold()
+        return 'росси' in text and 'узбекистан' in text
+    return expected in numbers
 
-o.llm.generate = traced_generate
-try:
-    o.reset(sid)
-    for question in ['Каков Net debt BP на конец 2023 года в миллионах долларов?',
-                     'А Net debt на конец 2022 года в тех же единицах?',
-                     'Сравни значения Net debt из двух предыдущих ответов: как изменилась сумма в миллионах долларов?']:
-        answer = o.handle(sid, question)
-        print('BACKEND',config.LLM_BACKEND,'QUESTION',question,'ANSWER',answer,flush=True)
-        if not answer or any(marker in answer for marker in ['недоступ', 'не настроен', 'некорректный ответ']):
-            raise RuntimeError('Не получен ответ модели')
-    # Проверяем переданный в модель диалог, отдельно от качества генерации.
-    assert len(memory.window(sid)) == 6
-    assert len(o.usage) == 3
-    assert [len(r['messages']) for r in records] == [2, 4, 6]
-    if config.LLM_BACKEND != 'fake':
-        expected = [('20912',), ('21422',), ('20912', '21422')]
-        quality = []
-        for record, values in zip(records, expected):
-            digits = re.sub(r'\D', '', record['answer'])
-            quality.append(all(value in digits for value in values))
-        arithmetic_ok = '510' in re.sub(r'\D', '', records[-1]['answer'])
-        print('NUMERIC_CHECKS', quality, 'ARITHMETIC_CHECK', arithmetic_ok, flush=True)
-        Path('/workspace/scratch/smoke-evidence.json').write_text(
-            json.dumps({'backend':config.LLM_BACKEND,'model':config.OLLAMA_MODEL,
-                        'numeric_checks':quality,'arithmetic_check':arithmetic_ok,'records':records},ensure_ascii=False,indent=2))
-        assert all(quality) and arithmetic_ok, 'Ошибка чисел или расчёта модели: смотрите smoke-evidence.json' 
-finally:
-    o.reset(sid)
-    o.close()
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    o = Orchestrator()
+    sid = 'magnit-smoke'
+    records = []
+    original = o.llm.generate
+
+    def traced(messages, temperature=0.3):
+        answer = original(messages, temperature)
+        records.append({'messages':messages, 'answer':answer})
+        return answer
+
+    o.llm.generate = traced
+    cases = [
+        ('Какова общая выручка «Магнита» за 2023 год в миллионах рублей?', '2544689'),
+        ('Сколько всего магазинов было у группы на конец этого отчётного года?', '29165'),
+        ('А в каких странах работала эта сеть магазинов?', 'countries'),
+    ]
+    try:
+        o.reset(sid)
+        for question, expected in cases:
+            answer = o.handle(sid, question)
+            print('BACKEND',config.LLM_BACKEND,'QUESTION',question,'ANSWER',answer,flush=True)
+            if not answer or any(marker in answer for marker in ['недоступ', 'не настроен', 'некорректный ответ']):
+                raise RuntimeError('Не получен ответ модели')
+        assert len(memory.window(sid)) == 6
+        assert len(o.usage) == 3
+        assert [len(r['messages']) for r in records] == [2, 4, 6]
+        content = [check_answer(r['answer'], expected) for r, (_, expected) in zip(records, cases)]
+        citations = [bool(re.search(r'\[magnit-[^\]]+\]', r['answer'])) for r in records]
+        evidence = {'company':'ПАО «Магнит»','year':2023,'backend':config.LLM_BACKEND,
+                    'model':config.OLLAMA_MODEL,'content_checks':content,'citation_checks':citations,
+                    'history_sizes':[len(r['messages']) for r in records],'records':records}
+        output = ROOT / 'reports' / 'smoke-evidence.json'
+        output.write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n')
+        print('CONTENT_CHECKS',content,'CITATIONS',citations,flush=True)
+        if config.LLM_BACKEND != 'fake':
+            assert all(content), 'Ошибка содержания ответа: см. reports/smoke-evidence.json'
+            assert all(citations), 'Модель пропустила ссылку: см. reports/smoke-evidence.json'
+    finally:
+        o.reset(sid)
+        o.close()
+
+
+if __name__ == '__main__':
+    main()

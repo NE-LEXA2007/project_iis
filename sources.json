@@ -1,54 +1,73 @@
 {
-  "company": "BP p.l.c.",
+  "schema_version": 2,
+  "company": "ПАО «Магнит»",
   "year": 2023,
-  "url": "https://www.annualreports.com/HostedData/AnnualReportArchive/b/LSE_BP_2023.pdf",
-  "sha256": "9cd79ab7653dda7750431f549284039fdf85d4d1a13c8a775e3ef17a7d422252",
-  "description": "bp Annual Report and Form 20-F 2023. Номера ниже — страницы исходного PDF (печатные номера на 2 меньше).",
-  "extracts": {
-    "bp-annual-review.pdf": [
-      37,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43
-    ],
-    "bp-risks.pdf": [
-      79,
-      80,
-      81,
-      82,
-      83
-    ],
-    "bp-financials.pdf": [
-      165,
-      166,
-      167,
-      168,
-      169,
-      170,
-      171,
-      172,
-      173,
-      174,
-      221,
-      222,
-      223,
-      224
-    ],
-    "bp-segments.pdf": [
-      195,
-      196,
-      197,
-      198,
-      199
-    ],
-    "bp-events.pdf": [
-      190,
-      191,
-      192,
-      193
-    ]
-  }
+  "corpus_language": "ru + en",
+  "scope": "Учебные русские выдержки и выбранные страницы архивной английской версии годового отчёта. Перевод не является официальной русской редакцией эмитента.",
+  "documents": [
+    {
+      "id": "magnit-annual-2023",
+      "title": "Magnit Annual Report 2023",
+      "language": "en",
+      "url": "https://www.annualreports.com/HostedData/AnnualReportArchive/m/LSE_MGNT_2023.pdf",
+      "filename": "magnit-annual-2023.pdf",
+      "sha256": "cbafd3d457bf7761c712f92f8b23ce43d48e5dcc8aee6afc9faea3af1c41a40b",
+      "extracts": {
+        "magnit-overview.pdf": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "magnit-financials.pdf": [
+          57,
+          58,
+          59
+        ],
+        "magnit-segments.pdf": [
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37
+        ],
+        "magnit-risks.pdf": [
+          72,
+          73,
+          74
+        ],
+        "magnit-events.pdf": [
+          9,
+          10
+        ]
+      }
+    }
+  ],
+  "transcripts": [
+    "magnit-financials-summary.md",
+    "magnit-overview-stores.md",
+    "magnit-segments-sales.md",
+    "magnit-segments-formats.md",
+    "magnit-financials-lfl.md",
+    "magnit-risks-summary.md",
+    "magnit-events-summary.md"
+  ],
+  "raw_files": [
+    "magnit-overview.pdf",
+    "magnit-financials.pdf",
+    "magnit-segments.pdf",
+    "magnit-risks.pdf",
+    "magnit-events.pdf",
+    "magnit-financials-summary.md",
+    "magnit-overview-stores.md",
+    "magnit-segments-sales.md",
+    "magnit-segments-formats.md",
+    "magnit-financials-lfl.md",
+    "magnit-risks-summary.md",
+    "magnit-events-summary.md"
+  ],
+  "citation_rule": "Для выборок PDF page — страница выборки; соответствие оригиналу в documents[0].extracts. На каждом развороте оригинала две печатные страницы: 2*n-2 и 2*n-1. В русских выдержках указаны PDF-страницы оригинала."
 }
